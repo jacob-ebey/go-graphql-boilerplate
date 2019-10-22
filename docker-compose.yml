@@ -1,0 +1,13 @@
+version: "3"
+services:
+  db:
+    image: "postgres:11"
+    container_name: "go-graphql-boilerplate-postgress"
+    environment:
+      POSTGRES_ENABLE_SSL: "true"
+    ports:
+      - "54320:5432"
+    volumes:
+      - my_dbdata:/var/lib/postgresql/data
+volumes:
+  my_dbdata:

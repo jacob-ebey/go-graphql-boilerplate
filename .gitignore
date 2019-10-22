@@ -1,0 +1,7 @@
+.env
+**/*.exe
+functions/
+# Local Netlify folder
+.netlify
+main
+node_modules/

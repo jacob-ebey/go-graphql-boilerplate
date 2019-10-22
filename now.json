@@ -1,0 +1,40 @@
+{
+  "version": 2,
+  "env": {
+    "POSTGRESS_ADDRESS": "@postgress-address",
+    "POSTGRESS_DATABASE": "@postgress-database",
+    "POSTGRESS_USER": "@postgress-user",
+    "POSTGRESS_PASSWORD": "@postgress-password"
+  },
+  "builds": [
+    {
+      "use": "@now/static-build",
+      "src": "frontend/package.json",
+      "config": {
+        "distDir": "build"
+      }
+    },
+    {
+      "use": "@now/go",
+      "src": "src/handler/now.go"
+    }
+  ],
+  "routes": [
+    {
+      "src": "^/graphql",
+      "dest": "src/handler/now.go"
+    },
+    {
+      "src": "^/favicon.ico",
+      "dest": "frontend/favicon.ico"
+    },
+    {
+      "src": "^/static/(.*)",
+      "dest": "frontend/static/$1"
+    },
+    {
+      "src": ".*",
+      "dest": "frontend"
+    }
+  ]
+}
