@@ -1,10 +1,12 @@
 {
   "version": 2,
   "env": {
+    "DATABASE_URL": "@database-url",
     "POSTGRESS_ADDRESS": "@postgress-address",
     "POSTGRESS_DATABASE": "@postgress-database",
     "POSTGRESS_USER": "@postgress-user",
-    "POSTGRESS_PASSWORD": "@postgress-password"
+    "POSTGRESS_PASSWORD": "@postgress-password",
+    "JWT_SECRET": "@jwt-secret"
   },
   "builds": [
     {

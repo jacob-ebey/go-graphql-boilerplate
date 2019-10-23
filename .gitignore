@@ -1,7 +1,8 @@
 .env
 **/*.exe
+frontend/build/
+frontend/node_modules/
 functions/
 # Local Netlify folder
 .netlify
 main
-node_modules/
