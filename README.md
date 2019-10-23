@@ -2,7 +2,8 @@
 
 A simple to uses, deploys anywhere boilerplate to get you going in GO and GraphQL.
 
-Example: https://go-graphql-boilerplate.herokuapp.com/
+Zeit Now Example: https://go-graphql-boilerplate.jacob-ebey.now.sh/
+Heroku Example: https://go-graphql-boilerplate.herokuapp.com/
 
 
 ## Getting started
