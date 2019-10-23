@@ -34,6 +34,22 @@ var QueryType = graphql.NewObject(
 						Type:         graphql.Int,
 						DefaultValue: config.LimitDefault,
 					},
+					"filter": &graphql.ArgumentConfig{
+						Type: graphql.NewEnum(graphql.EnumConfig{
+							Name: "TodoFilter",
+							Values: graphql.EnumValueConfigMap{
+								"ALL": &graphql.EnumValueConfig{
+									Value: "all",
+								},
+								"ACTIVE": &graphql.EnumValueConfig{
+									Value: "active",
+								},
+								"COMPLETE": &graphql.EnumValueConfig{
+									Value: "complete",
+								},
+							},
+						}),
+					},
 				},
 				Resolve: resolvers.GetTodos,
 			},

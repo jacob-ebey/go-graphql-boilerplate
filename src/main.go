@@ -35,7 +35,7 @@ func main() {
 		}))
 	}
 
-	if config.IsDevelopment() {
+	if config.IsDevelopment() && config.ShouldServeStaticFiles() {
 		go dev.WatchFrontend()
 	}
 

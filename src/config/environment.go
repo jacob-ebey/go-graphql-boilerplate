@@ -2,6 +2,7 @@ package config
 
 import (
 	"crypto/tls"
+	"fmt"
 	"os"
 	"strings"
 
@@ -10,7 +11,7 @@ import (
 
 func IsDevelopment() bool { return os.Getenv("ENVIRONMENT") == "development" }
 
-func ShouldServeStaticFiles() bool { return IsDevelopment() || os.Getenv("GO_SERVES_STATIC") == "true" }
+func ShouldServeStaticFiles() bool { return os.Getenv("GO_SERVES_STATIC") == "true" }
 
 func GetAddress() string {
 	addr := ":" + os.Getenv("PORT")
@@ -19,6 +20,16 @@ func GetAddress() string {
 	}
 
 	return addr
+}
+
+func GetJwtSecret() []byte {
+	secret := os.Getenv("JWT_SECRET")
+
+	if secret == "" {
+		panic(fmt.Errorf("No JWT_SECRET environment variable provided."))
+	}
+
+	return []byte(secret)
 }
 
 func IsDocker() bool { return os.Getenv("IS_DOCKER") == "true" }

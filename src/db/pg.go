@@ -12,6 +12,7 @@ func Connect(options *pg.Options, dev bool) (*pg.DB, error) {
 
 	types := []interface{}{
 		(*structs.Todo)(nil),
+		(*structs.User)(nil),
 	}
 
 	for _, model := range types {

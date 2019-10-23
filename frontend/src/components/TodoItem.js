@@ -147,7 +147,7 @@ function TodoItem({ completed, id, text, disabled }) {
       {!disabled && editing ? (
         <input
           className="edit"
-          disabled={completed || loading}
+          disabled={disabled || completed || loading}
           value={value}
           onChange={onChange}
           onBlur={onBlur}
@@ -165,7 +165,7 @@ function TodoItem({ completed, id, text, disabled }) {
           <label onClick={onFocus}>{text}</label>
           <button
             className="destroy"
-            disabled={loading}
+            disabled={disabled || loading}
             onClick={onDelete}
           ></button>
         </div>

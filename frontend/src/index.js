@@ -8,7 +8,18 @@ import ApolloClient from "apollo-boost";
 import "todomvc-app-css/index.css"
 
 const client = new ApolloClient({
-  uri: process.env.REACT_APP_GRAPHQL_ENDPOINT || "/graphql"
+  uri: process.env.REACT_APP_GRAPHQL_ENDPOINT || "/graphql",
+  request: operation => {
+    const auth = JSON.parse(localStorage.getItem("auth") || JSON.stringify(null));
+
+    const Authorization = auth && auth.token ? `Bearer ${auth.token}` : undefined;
+
+    operation.setContext({
+      headers: {
+        Authorization
+      },
+    });
+  }
 });
 
 //Apollo Client

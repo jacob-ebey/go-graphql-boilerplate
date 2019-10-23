@@ -1,12 +1,14 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
-	"log"
+	"fmt"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/graphql-go/graphql"
 
+	"github.com/jacob-ebey/go-graphql-boilerplate/src/config"
 	"github.com/jacob-ebey/go-graphql-boilerplate/src/runtime"
 )
 
@@ -19,12 +21,19 @@ func NewLambdaHandler(executor runtime.Executor) func(request events.APIGatewayP
 
 	return func(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 		if err := json.Unmarshal([]byte(request.Body), &params); err != nil {
-			log.Print("Could not decode body", err)
+			return events.APIGatewayProxyResponse{
+				Body:       `{"errors": [{ message: "Invalid request body." }]}`,
+				StatusCode: 400,
+			}, nil
 		}
+
+		authHeader := request.Headers[config.JwtHeader]
+		user := runtime.GetUserFromToken(authHeader)
+		ctx := context.WithValue(executor.Context, "user", user)
 
 		result := graphql.Do(graphql.Params{
 			Schema:         *executor.Handler.Schema,
-			Context:        executor.Context,
+			Context:        ctx,
 			OperationName:  params.OperationName,
 			RequestString:  params.Query,
 			VariableValues: params.Variables,
@@ -32,7 +41,7 @@ func NewLambdaHandler(executor runtime.Executor) func(request events.APIGatewayP
 
 		response, err := json.Marshal(result)
 		if err != nil {
-			log.Print("Could not decode body")
+			fmt.Println("Could not encode response body")
 		}
 
 		return events.APIGatewayProxyResponse{

@@ -65,6 +65,37 @@ var MutationType = graphql.NewObject(
 				Description: "Delete all completed todos.",
 				Resolve:     resolvers.DeleteCompletedTodos,
 			},
+
+			"signIn": &graphql.Field{
+				Type:        AuthResponseType,
+				Description: "Sign in with username and password.",
+				Args: graphql.FieldConfigArgument{
+					"email": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(graphql.String),
+					},
+					"password": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(graphql.String),
+					},
+				},
+				Resolve: resolvers.SignIn,
+			},
+
+			"signUp": &graphql.Field{
+				Type:        AuthResponseType,
+				Description: "Sign up with email and password.",
+				Args: graphql.FieldConfigArgument{
+					"email": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(graphql.String),
+					},
+					"password": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(graphql.String),
+					},
+					"confirmPassword": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(graphql.String),
+					},
+				},
+				Resolve: resolvers.SignUp,
+			},
 		},
 	},
 )

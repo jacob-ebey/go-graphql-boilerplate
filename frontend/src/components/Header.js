@@ -4,7 +4,7 @@ import { useMutation } from "@apollo/react-hooks";
 
 import { TODOS_QUERY } from "../queries/todos";
 
-export default function Header({ disabled }) {
+export default function Header({ disabled, loggedIn }) {
   const [value, setValue] = React.useState("");
 
   const [createTodo, { loading }] = useMutation(
@@ -28,7 +28,7 @@ export default function Header({ disabled }) {
         }
       ) {
         const { todos, todosLeft } = cache.readQuery({ query: TODOS_QUERY });
-        
+
         cache.writeQuery({
           query: TODOS_QUERY,
           data: {
@@ -62,15 +62,17 @@ export default function Header({ disabled }) {
   return (
     <header className="header">
       <h1>todos</h1>
-      <input
-        disabled={disabled || loading}
-        className="new-todo"
-        placeholder="What needs to be done?"
-        autoFocus
-        value={value}
-        onChange={onChange}
-        onKeyDown={onKeyDown}
-      />
+      {loggedIn && (
+        <input
+          disabled={disabled || loading}
+          className="new-todo"
+          placeholder="What needs to be done?"
+          autoFocus
+          value={value}
+          onChange={onChange}
+          onKeyDown={onKeyDown}
+        />
+      )}
     </header>
   );
 }

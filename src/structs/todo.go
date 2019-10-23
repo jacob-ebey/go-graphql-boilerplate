@@ -4,4 +4,5 @@ type Todo struct {
 	ID        int
 	Text      string
 	Completed bool
+	UserID    int
 }

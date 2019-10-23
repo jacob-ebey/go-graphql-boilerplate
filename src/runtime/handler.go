@@ -8,6 +8,7 @@ import (
 	"github.com/go-pg/pg"
 	"github.com/graphql-go/handler"
 
+	"github.com/jacob-ebey/go-graphql-boilerplate/src/config"
 	"github.com/jacob-ebey/go-graphql-boilerplate/src/db"
 	"github.com/jacob-ebey/go-graphql-boilerplate/src/types"
 )
@@ -46,7 +47,11 @@ func NewHandler(pgOptions *pg.Options, dev bool) (func(w http.ResponseWriter, r 
 	executor := NewExecutor(pgOptions, dev)
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		executor.Handler.ContextHandler(executor.Context, w, r)
+		authHeader := r.Header.Get(config.JwtHeader)
+		user := GetUserFromToken(authHeader)
+		ctx := context.WithValue(executor.Context, "user", user)
+
+		executor.Handler.ContextHandler(ctx, w, r)
 	}
 
 	return handler, executor.Close
