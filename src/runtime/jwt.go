@@ -17,8 +17,6 @@ func GetUserFromToken(token string) *structs.Claims {
 		return []byte(config.GetJwtSecret()), nil
 	})
 
-	fmt.Println(err)
-
 	// TODO: See if there is a better way to handle unauthenticated than returning an expired MapClaims
 	if err != nil {
 		return &structs.Claims{

@@ -59,6 +59,12 @@ var QueryType = graphql.NewObject(
 				Description: "The number of todos that are not complete.",
 				Resolve:     resolvers.TodosLeft,
 			},
+
+			"todosTotal": &graphql.Field{
+				Type:        graphql.NewNonNull(graphql.Int),
+				Description: "The number of todos, both active and complete.",
+				Resolve:     resolvers.TodosTotal,
+			},
 		},
 	},
 )

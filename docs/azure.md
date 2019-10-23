@@ -30,7 +30,7 @@
 # Configure envrionment variables
 
 ```bash
-> az webapp config appsettings set --name go-graphql-boilerplate --resource-group go-graphql-boilerplate-rg --settings DATABASE_URL='postgres://username:password@host:5432/dbname' POSTGRESS_ADDRESS='host:5432' GO_SERVES_STATIC='true' ENVIRONMENT='production'
+> az webapp config appsettings set --name go-graphql-boilerplate --resource-group go-graphql-boilerplate-rg --settings DATABASE_URL='postgres://username:password@host:5432/dbname' POSTGRESS_ADDRESS='host:5432' GO_SERVES_STATIC='true' ENVIRONMENT='production' JWT_SECRET='your-jwt-secret'
 ```
 
 # View the status of the deployment

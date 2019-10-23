@@ -1,10 +1,11 @@
 import React from "react";
 import { gql } from "apollo-boost";
-import { useMutation } from "@apollo/react-hooks";
-
-import { TODOS_QUERY } from "../queries/todos";
+import { useMutation, useApolloClient } from "@apollo/react-hooks";
+import { NavLink as Link } from "react-router-dom";
 
 export default function ListFooter({ todosLeft, hasCompleted }) {
+  const client = useApolloClient();
+
   const [deleteCompletedTodos, { loading: deleting }] = useMutation(
     gql`
       mutation DeleteCompletedTodos {
@@ -18,15 +19,7 @@ export default function ListFooter({ todosLeft, hasCompleted }) {
           data: { deleteCompletedTodos }
         }
       ) {
-        const { todos, ...rest } = cache.readQuery({ query: TODOS_QUERY });
-
-        cache.writeQuery({
-          query: TODOS_QUERY,
-          data: {
-            ...rest,
-            todos: todos.filter(todo => !todo.completed)
-          }
-        });
+        client.resetStore();
       }
     }
   );
@@ -43,15 +36,19 @@ export default function ListFooter({ todosLeft, hasCompleted }) {
       </span>
       <ul className="filters">
         <li>
-          <a className="selected" href="#/">
+          <Link exact activeClassName="selected" to="/">
             All
-          </a>
+          </Link>
         </li>
         <li>
-          <a href="#/active">Active</a>
+          <Link activeClassName="selected" to="/active">
+            Active
+          </Link>
         </li>
         <li>
-          <a href="#/completed">Completed</a>
+          <Link activeClassName="selected" to="/complete">
+            Completed
+          </Link>
         </li>
       </ul>
       {hasCompleted && (

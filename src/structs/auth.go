@@ -9,6 +9,7 @@ type Claims struct {
 }
 
 type AuthResponse struct {
-	Token string
-	User  *User
+	RefreshToken string
+	Token        string
+	User         *User
 }

@@ -13,6 +13,7 @@ function TodoItem({ completed, id, text, disabled }) {
       mutation MarkTodo($id: Int!, $completed: Boolean!) {
         markTodo(id: $id, completed: $completed) {
           id
+          text
           completed
         }
       }
@@ -22,34 +23,103 @@ function TodoItem({ completed, id, text, disabled }) {
         id,
         completed: !completed
       },
-      optimisticResponse: {
-        __typename: "Mutation",
-        markTodo: {
-          __typename: "Todo",
-          id,
-          completed: !completed
+      update(
+        cache,
+        {
+          data: { __typename, markTodo: newTodo }
         }
-      },
-      update(cache, { data }) {
-        if (data.__typename) {
-          return;
-        }
-
+      ) {
         const query = gql`
           {
             todosLeft
+            todosTotal
           }
         `;
-        const { todosLeft } = cache.readQuery({ query });
+        const { todosLeft, todosTotal } = cache.readQuery({ query });
 
-        const newLeft = data.markTodo.completed ? todosLeft - 1 : todosLeft + 1;
+        let newLeft = newTodo.completed ? todosLeft - 1 : todosLeft + 1;
+        newLeft = newLeft > 0 ? newLeft : 0;
 
-        cache.writeQuery({
+        cache.writeData({
           query,
           data: {
-            todosLeft: newLeft > 0 ? newLeft : 0
+            todosLeft: newLeft,
+            todosTotal
           }
         });
+
+        let activeTodos, completeTodos;
+        let activeFromCache = false,
+          completeFromCache = false;
+        try {
+          const { todos: tempActiveTodos } = cache.readQuery({
+            query: TODOS_QUERY,
+            variables: { filter: "ACTIVE" }
+          });
+          activeTodos = tempActiveTodos;
+          activeFromCache = true;
+        } catch (err) {
+          activeTodos = [];
+        }
+
+        try {
+          const { todos: tempCompleteTodos } = cache.readQuery({
+            query: TODOS_QUERY,
+            variables: { filter: "COMPLETE" }
+          });
+          completeTodos = tempCompleteTodos;
+          completeFromCache = true;
+        } catch (err) {
+          completeTodos = [];
+        }
+
+        if (newTodo.completed) {
+          if (activeFromCache) {
+            cache.writeQuery({
+              query: TODOS_QUERY,
+              variables: { filter: "ACTIVE" },
+              data: {
+                todos: activeTodos.filter(todo => todo.id !== newTodo.id),
+                todosLeft: newLeft,
+                todosTotal
+              }
+            });
+          }
+          if (completeFromCache) {
+            cache.writeQuery({
+              query: TODOS_QUERY,
+              variables: { filter: "COMPLETE" },
+              data: {
+                todos: [newTodo].concat(completeTodos),
+                todosLeft: newLeft,
+                todosTotal
+              }
+            });
+          }
+        } else {
+          if (activeFromCache) {
+            cache.writeQuery({
+              query: TODOS_QUERY,
+              variables: { filter: "ACTIVE" },
+              data: {
+                todos: [newTodo].concat(activeTodos),
+                todosLeft: newLeft,
+                todosTotal
+              }
+            });
+          }
+          if (completeFromCache) {
+            cache.writeQuery({
+              query: TODOS_QUERY,
+              variables: { filter: "COMPLETE" },
+              data: {
+                todos: completeTodos.filter(todo => todo.id !== newTodo.id),
+                todosLeft: newLeft,
+                todosTotal
+              }
+            });
+          }
+        }
       }
     }
   );
@@ -97,15 +167,27 @@ function TodoItem({ completed, id, text, disabled }) {
           data: { deleteCompletedTodos }
         }
       ) {
-        const { todos, ...rest } = cache.readQuery({ query: TODOS_QUERY });
+        const update = filter => {
+          try {
+            const { todos, ...rest } = cache.readQuery({
+              query: TODOS_QUERY,
+              variables: { filter }
+            });
 
-        cache.writeQuery({
-          query: TODOS_QUERY,
-          data: {
-            ...rest,
-            todos: todos.filter(todo => todo.id !== id)
-          }
-        });
+            cache.writeQuery({
+              query: TODOS_QUERY,
+              variables: { filter },
+              data: {
+                ...rest,
+                todos: todos.filter(todo => todo.id !== id)
+              }
+            });
+          } catch (err) {}
+        };
+
+        update("ALL");
+        update("ACTIVE");
+        update("COMPLETE");
       }
     }
   );

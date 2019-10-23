@@ -18,6 +18,7 @@
 > heroku config:set ENVIRONMENT="production"
 > heroku config:set IS_HEROKU=true
 > heroku config:set GO_SERVES_STATIC=true
+> heroku config:set JWT_SECRET="your-jwt-secret"
 ```
 
 Even though the above database provisioning command added the DATABASE_URL environment variable for us,

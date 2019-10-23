@@ -1,10 +1,11 @@
 import React from "react";
 import { gql } from "apollo-boost";
 import { useMutation } from "@apollo/react-hooks";
+import { Link } from "react-router-dom";
 
 import { TODOS_QUERY } from "../queries/todos";
 
-export default function Header({ disabled, loggedIn }) {
+export default function Header({ loggedIn }) {
   const [value, setValue] = React.useState("");
 
   const [createTodo, { loading }] = useMutation(
@@ -27,15 +28,27 @@ export default function Header({ disabled, loggedIn }) {
           data: { createTodo: createdTodo }
         }
       ) {
-        const { todos, todosLeft } = cache.readQuery({ query: TODOS_QUERY });
+        const updateTodos = filter => {
+          try {
+            const { todos, todosLeft, todosTotal } = cache.readQuery({
+              query: TODOS_QUERY,
+              variables: { filter }
+            });
 
-        cache.writeQuery({
-          query: TODOS_QUERY,
-          data: {
-            todos: [createdTodo].concat(todos),
-            todosLeft: todosLeft + 1
-          }
-        });
+            cache.writeQuery({
+              query: TODOS_QUERY,
+              variables: { filter },
+              data: {
+                todos: [createdTodo].concat(todos),
+                todosLeft: todosLeft + 1,
+                todosTotal: todosTotal + 1
+              }
+            });
+          } catch (err) {}
+        };
+
+        updateTodos("ALL");
+        updateTodos("ACTIVE");
 
         setValue("");
       }
@@ -61,10 +74,12 @@ export default function Header({ disabled, loggedIn }) {
 
   return (
     <header className="header">
-      <h1>todos</h1>
+      <Link to="/">
+        <h1>todos</h1>
+      </Link>
       {loggedIn && (
         <input
-          disabled={disabled || loading}
+          disabled={loading}
           className="new-todo"
           placeholder="What needs to be done?"
           autoFocus

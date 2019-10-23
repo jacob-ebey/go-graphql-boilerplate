@@ -96,6 +96,12 @@ var MutationType = graphql.NewObject(
 				},
 				Resolve: resolvers.SignUp,
 			},
+
+			"refreshToken": &graphql.Field{
+				Type:        AuthResponseType,
+				Description: "Refrsh tokens for a user.",
+				Resolve:     resolvers.RefreshToken,
+			},
 		},
 	},
 )

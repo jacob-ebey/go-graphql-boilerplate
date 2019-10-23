@@ -42,6 +42,21 @@ func createToken(user *structs.User) (string, error) {
 	return t.SignedString(config.GetJwtSecret())
 }
 
+func createRefreshToken(user *structs.User) (string, error) {
+	issuedAt := time.Now()
+	expiresAt := issuedAt.Add(24 * time.Hour)
+
+	t := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), structs.Claims{
+		StandardClaims: jwt.StandardClaims{
+			IssuedAt:  issuedAt.Unix(),
+			ExpiresAt: expiresAt.Unix(),
+		},
+		ID: user.ID,
+	})
+
+	return t.SignedString(config.GetJwtSecret())
+}
+
 func SignIn(params graphql.ResolveParams) (interface{}, error) {
 	database := params.Context.Value("database").(*pg.DB)
 
@@ -61,14 +76,19 @@ func SignIn(params graphql.ResolveParams) (interface{}, error) {
 	}
 
 	token, err := createToken(&user)
+	if err != nil {
+		return nil, err
+	}
 
+	refreshToken, err := createRefreshToken(&user)
 	if err != nil {
 		return nil, err
 	}
 
 	return structs.AuthResponse{
-		Token: token,
-		User:  &user,
+		RefreshToken: refreshToken,
+		Token:        token,
+		User:         &user,
 	}, nil
 }
 
@@ -107,13 +127,48 @@ func SignUp(params graphql.ResolveParams) (interface{}, error) {
 	}
 
 	token, err := createToken(&user)
+	if err != nil {
+		return nil, err
+	}
 
+	refreshToken, err := createRefreshToken(&user)
 	if err != nil {
 		return nil, err
 	}
 
 	return structs.AuthResponse{
-		Token: token,
-		User:  &user,
+		RefreshToken: refreshToken,
+		Token:        token,
+		User:         &user,
+	}, nil
+}
+
+func RefreshToken(params graphql.ResolveParams) (interface{}, error) {
+	database := params.Context.Value("database").(*pg.DB)
+	user := params.Context.Value("user").(*structs.Claims)
+
+	if !user.VerifyExpiresAt(time.Now().Unix(), true) {
+		return nil, fmt.Errorf("Not authenticated.")
+	}
+
+	fullUser := structs.User{ID: user.ID}
+	if err := database.Select(&fullUser); err != nil {
+		return nil, err
+	}
+
+	token, err := createToken(&fullUser)
+	if err != nil {
+		return nil, err
+	}
+
+	refreshToken, err := createRefreshToken(&fullUser)
+	if err != nil {
+		return nil, err
+	}
+
+	return structs.AuthResponse{
+		RefreshToken: refreshToken,
+		Token:        token,
+		User:         &fullUser,
 	}, nil
 }

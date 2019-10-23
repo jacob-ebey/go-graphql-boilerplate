@@ -1,19 +1,16 @@
-.SignInError {
+.SignUpError {
   padding: 15px;
   color: red;
 }
 
-.SignInButtons {
+.SignUpButtons {
   display: flex;
   justify-content: center;
   align-items: center;
  }
 
-.SignInButton {
+.SignUpButton {
   width: 50%;
   padding: 15px;
   cursor: pointer;
-  text-align: center;
-  text-decoration: none;
-  color: black;
 }

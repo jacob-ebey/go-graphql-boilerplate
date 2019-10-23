@@ -67,6 +67,26 @@ func TodosLeft(params graphql.ResolveParams) (interface{}, error) {
 	return count, nil
 }
 
+func TodosTotal(params graphql.ResolveParams) (interface{}, error) {
+	database := params.Context.Value("database").(*pg.DB)
+	user := params.Context.Value("user").(*structs.Claims)
+
+	if !user.VerifyExpiresAt(time.Now().Unix(), true) {
+		return nil, fmt.Errorf("Not authenticated.")
+	}
+
+	count, err := database.
+		Model(&structs.Todo{}).
+		Where("user_id = ?", user.ID).
+		Count()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return count, nil
+}
+
 func CreateTodo(params graphql.ResolveParams) (interface{}, error) {
 	database := params.Context.Value("database").(*pg.DB)
 	user := params.Context.Value("user").(*structs.Claims)
