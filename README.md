@@ -1,8 +1,9 @@
 # GO GraphQL Boilerplate
 
-A simple to uses, deploys anywhere boilerplate to get you going in GO and GraphQL.
+A simple to use, deploys anywhere boilerplate to get you going in GO and GraphQL.
 
 Zeit Now Example: https://go-graphql-boilerplate.jacob-ebey.now.sh/
+
 Heroku Example: https://go-graphql-boilerplate.herokuapp.com/
 
 
