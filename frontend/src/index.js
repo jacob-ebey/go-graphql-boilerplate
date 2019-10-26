@@ -40,7 +40,7 @@ const client = new ApolloClient({
       const decoded = decode(token);
 
       if (decoded && Date.now() >= decoded.exp * 1000) {
-        const decodedRefreshToken = decode(auth.refreshToken;);
+        const decodedRefreshToken = decode(auth.refreshToken);
 
         if (decodedRefreshToken && Date.now() < decodedRefreshToken.exp * 1000) {
           const { data } = await refreshClient.mutate({
