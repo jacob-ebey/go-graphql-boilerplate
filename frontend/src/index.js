@@ -40,24 +40,34 @@ const client = new ApolloClient({
       const decoded = decode(token);
 
       if (decoded && Date.now() >= decoded.exp * 1000) {
-        const { data } = await refreshClient.mutate({
-          mutation: gql`
-            mutation RefreshToken {
-              refreshToken {
-                token
-                refreshToken
-                user {
-                  email
-                  id
+        const decodedRefreshToken = decode(auth.refreshToken;);
+
+        if (decodedRefreshToken && Date.now() < decodedRefreshToken.exp * 1000) {
+          const { data } = await refreshClient.mutate({
+            mutation: gql`
+              mutation RefreshToken {
+                refreshToken {
+                  token
+                  refreshToken
+                  user {
+                    email
+                    id
+                  }
                 }
               }
-            }
-          `
-        });
+            `
+          });
 
-        if (data && data.refreshToken) {
-          localStorage.setItem("auth", JSON.stringify(data.refreshToken));
-          token = data.refreshToken.token;
+          if (data && data.refreshToken) {
+            localStorage.setItem("auth", JSON.stringify(data.refreshToken));
+            token = data.refreshToken.token;
+          } else {
+            localStorage.removeItem("auth");
+            token = undefined
+          }
+        } else {
+          localStorage.removeItem("auth");
+          token = undefined
         }
       }
     }
